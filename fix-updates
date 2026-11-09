@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+notify-send "System Updates" "Cleaning cache and repairing updates..." -i system-software-update
+
+# Run system repairs and package updates with elevated permissions
+pkexec bash -c '
+    echo "--> Rebuilding RPM database..."
+    rpm --rebuilddb
+
+    echo "--> Cleaning package cache..."
+    dnf clean all
+
+    echo "--> Refreshing repositories and upgrading packages..."
+    dnf upgrade --refresh -y
+
+    if command -v flatpak &> /dev/null; then
+        echo "--> Repairing and updating Flatpaks..."
+        flatpak repair
+        flatpak update -y
+    fi
+'
+
+# Check if the execution succeeded
+if [ $? -eq 0 ]; then
+    notify-send "System Updates" "All updates and repairs completed successfully." -i software-update-available
+else
+    notify-send "System Updates" "Update process failed or was cancelled." -i dialog-error
+fi

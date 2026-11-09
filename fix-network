@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Notify user that the reset started
+notify-send "Network Reset" "Restarting network interfaces..." -i network-wireless
+
+# Cycle networking states (nmcli usually does not require root in active user sessions)
+nmcli networking off
+sleep 1
+nmcli networking on
+
+# If NetworkManager daemon needs a hard restart, prompt for root
+if [ "$1" == "--hard" ]; then
+    pkexec systemctl restart NetworkManager
+fi
+
+notify-send "Network Reset" "Network reset complete." -i network-wireless-connected

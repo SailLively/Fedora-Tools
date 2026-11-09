@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Notify user that the restart started (timeout guards against a hung shell)
+timeout 3 notify-send "KDE Reset" "Restarting Plasma shell..." -i preferences-desktop
+
+# Restart plasmashell via its systemd user service
+systemctl --user restart plasma-plasmashell.service
+
+if systemctl --user is-active --quiet plasma-plasmashell.service; then
+    timeout 3 notify-send "KDE Reset" "KDE restart complete." -i preferences-desktop
+else
+    timeout 3 notify-send "KDE Reset" "Plasma shell failed to restart." -i dialog-error
+fi
